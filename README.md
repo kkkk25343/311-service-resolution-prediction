@@ -88,6 +88,7 @@ The figure below presents the weather data with geography information used in th
 Insert two datasets into two feature groups in Hopsworks.
 <img width="2014" height="278" alt="image" src="https://github.com/user-attachments/assets/0e5935e0-fc96-4bd6-acf4-b58e63253e60" />
 
+The notebook `2_311_services_data_updates.ipynb` is responsible for retrieving newly available NYC 311 service requests and weather data from their respective online sources. It applies the same data cleaning, feature engineering, and transformation logic as used during initial dataset construction. It writes the updated features into the corresponding feature groups in Hopsworks. Users can setup their wanted time range to update the feature store.
 
 
 ## 3. Training Pipeline
@@ -209,11 +210,11 @@ Each model is stored with associated metadata, including training data version, 
 
 ---
 
-## 5. Batch Inference Pipeline
+## 4. Batch Inference Pipeline
 
 To demonstrate the end-to-end usability of the trained models, we implement a batch inference pipeline with a lightweight interactive user interface built using Streamlit.
 
-### 5.1 Input Data Selection
+### 4.1 Input Data Selection
 
 The batch inference pipeline retrieves the most recent NYC 311 service requests from the feature store.  
 Users can specify the number of latest records to process (e.g., the most recent 100 requests), allowing flexible control over batch size.
@@ -225,7 +226,7 @@ The pipeline automatically:
 
 ---
 
-### 5.2 Batch Prediction
+### 4.2 Batch Prediction
 
 For each selected batch, the pipeline performs inference using two registered XGBoost models:
 
@@ -239,7 +240,7 @@ Both models are loaded from the Hopsworks Model Registry, ensuring versioned and
 
 ---
 
-### 5.3 Output and Visualization
+### 4.3 Output and Visualization
 
 The inference results are presented through an interactive Streamlit interface, including:
 
@@ -257,7 +258,7 @@ This interface allows users to easily explore and interpret batch prediction res
 
 ---
 
-### 5.4 Execution
+### 4.4 Execution
 
 The batch inference application can be launched locally using:
 
