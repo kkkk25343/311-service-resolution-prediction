@@ -30,7 +30,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
   
 ## 2. Feature Pipeline
 
-### STEP 1: Time Feature Engineering
+### STEP 1: 311 Feature Engineering
 - **Timezone Conversion**:
   - Convert `created_date` from UTC to New York local time (`America/New_York`).
 
@@ -55,7 +55,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
 
 ---
 
-### STEP 2: Weather Feature Retrieval and Merging
+### STEP 2: Weather Feature Engineering
 - **Weather Data Collection**:
   - Retrieve hourly weather data separately for each borough using Open-Meteo API.
 
@@ -67,10 +67,18 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
 
 - **Date Alignment**:
   - Create a complete date grid with 5 rows per day (one per borough).
-  - Ensure full coverage from **2025-09-01 to 2025-12-17**.
 
-- **Feature Merging**:
-  - Merge weather features into `df_clean` using `(borough, date)` as keys.
+  
+### STEP 3 : Feature Store:
+write the two datasets into two different tables (feature groups) in Hopsworks.
+
+
+
+## 3. Training Pipeline
+
+### STEP 1: Feature Merging:
+  - write the two datasets into two different tables (feature groups) in Hopsworks.
+  - Merge weather features into `df_clean`(a dataframe) using `(borough, date)` as keys.
   - Automatically select the timezone interpretation (local vs UTC→NY) that maximizes the matching rate.
 
 - Output dataset: `df_final`, including:
@@ -80,7 +88,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
 
 ---
 
-### STEP 3: Label Generation (Pre-training)
+### STEP 2: Label Generation (Pre-training)
 - **Resolution Time Calculation**:
   - `resolution_hours = (closed_date - created_date) / 3600`
 
@@ -92,7 +100,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
 
 ---
 
-### Final Feature Assembly
+### STEP 3: Final Feature Assembly
 
 #### Categorical Features (6)
 - `agency`
