@@ -3,6 +3,7 @@ Project name: Dynamic Prediction of 311 Service Request Resolution Using Urban a
 
 ## 1. Datasets
 ### 1.1 NYC 311 Service Requests Data
+NYC 311 Service Requests is a continuously updated, city-wide dataset provided via the NYC Open Data Socrata API, containing detailed records of non-emergency service requests submitted by residents, including request type, location, timestamps, and resolution information.
 - **Source**: NYC Open Data (Socrata API)  
   https://data.cityofnewyork.us/resource/erm2-nwe9.json
 - **Time Range**: Requests created after **2025-09-01**
@@ -18,7 +19,7 @@ Project name: Dynamic Prediction of 311 Service Request Resolution Using Urban a
 ### 1.2 Weather Data
 - **Source**: Open-Meteo Archive API  
   https://archive-api.open-meteo.com/v1/archive
-- **Time Range**: **2025-09-01 to 2025-12-17**
+- **Time Range**: Weather Data collected after **2025-09-01**
 - **Geographic Coverage**: NYC five boroughs
   - Manhattan
   - Brooklyn
