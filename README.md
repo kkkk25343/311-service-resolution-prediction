@@ -92,12 +92,12 @@ Insert two datasets into two feature groups in Hopsworks.
 
 ## 3. Training Pipeline
 
-### STEP 1: 
-  - write the two datasets into two different tables (feature groups) in Hopsworks.
-  - Merge weather features into `df_clean`(a dataframe) using `(borough, date)` as keys.
-  - Automatically select the timezone interpretation (local vs UTC→NY) that maximizes the matching rate.
+### STEP 1: Training Data Construction
+  - Read the NYC 311 request features and weather features from two feature groups in Hopsworks.
+  - Join the two feature groups using `(borough, date)` as the primary keys to construct the training dataset.
+  - Select the timezone interpretation (local time vs. UTC→NY conversion) that maximizes the feature matching rate.
 
-- Output dataset: `df_final`, including:
+- Output dataset: `df_merged`, including:
   - `weather_temperature_mean`
   - `weather_precipitation_sum`
   - `weather_wind_speed_mean`
@@ -105,14 +105,25 @@ Insert two datasets into two feature groups in Hopsworks.
 ---
 
 ### STEP 2: Label Generation (Pre-training)
+Construct the prediction target by transforming raw timestamp information into a supervised learning label that reflects service resolution efficiency.
+
 - **Resolution Time Calculation**:
-  - `resolution_hours = (closed_date - created_date) / 3600`
+  - Compute the service resolution duration in hours as:
+    - `resolution_hours = (closed_date - created_date) / 3600`
+  - This value represents the total time required to resolve a 311 service request.
 
 - **Binary Label Construction**:
-  - `label_48h = 1` if `resolution_hours ≤ 48`, otherwise `0`.
+  - Define a binary classification label `label_48h` to indicate whether a service request is resolved within a practical time threshold:
+    - `label_48h = 1` if `resolution_hours ≤ 48`
+    - `label_48h = 0` otherwise
+  - The 48-hour threshold is chosen to reflect a commonly used operational service-level expectation and to balance label interpretability with class distribution.
 
-- **Data Filtering**:
-  - Remove records with negative resolution time.
+- **Data Filtering and Quality Control**:
+  - Remove records with negative or invalid resolution times, which may arise from data inconsistencies or timestamp errors.
+  - Exclude unresolved or ongoing service requests that lack a valid `closed_date`, ensuring that all labels are well-defined.
+
+As a result, this part produces a clean and interpretable target variable suitable for supervised classification models.
+
 
 ---
 
@@ -138,6 +149,123 @@ Insert two datasets into two feature groups in Hopsworks.
   - `weather_temperature_mean`
   - `weather_precipitation_sum`
   - `weather_wind_speed_mean`
+ 
+### STEP 4: Model Training and Validation
+
+After constructing the final training dataset, we train supervised learning models to address two complementary prediction tasks: a binary classification task and a regression task.
+
+#### 4.1 Temporal Train–Validation Split
+
+To reflect real-world deployment conditions and avoid temporal leakage, the dataset is split chronologically:
+
+- **Training Set**: Service requests created between **2025-09-01** and **2025-12-01**
+- **Validation Set**: All service requests created after **2025-12-01**
+
+This time-based split ensures that models are trained on historical data and evaluated on future, unseen requests.
+
+---
+
+#### 4.2 Classification Model: Resolution Within 48 Hours
+
+- **Task**: Binary classification  
+  Predict whether a NYC 311 service request will be resolved within 48 hours.
+- **Target Label**: `label_48h`
+- **Model**: XGBoost Classifier
+- **Input Features**:  
+  - Categorical features (e.g., agency, complaint type, borough)  
+  - Temporal features (e.g., hour, weekday, workday indicators)  
+  - Weather features (temperature, precipitation, wind speed)
+
+The classification model outputs the probability that a service request will be resolved within the 48-hour threshold, providing an interpretable and actionable prediction aligned with service-level expectations. 
+<img width="618" height="262" alt="image" src="https://github.com/user-attachments/assets/44b6a2c4-e8c9-4166-8b13-7024510d52eb" />
+
+---
+
+#### 4.3 Regression Model: Resolution Time Prediction
+
+- **Task**: Regression  
+  Predict the total resolution time (in hours) for a service request.
+- **Target Label**: `resolution_hours`
+- **Model**: XGBoost Regressor
+- **Input Features**:  
+  The same feature set used in the classification task is reused to enable a consistent comparison between modeling objectives.
+
+The regression model provides a continuous estimate of expected resolution time, offering finer-grained insight into service performance variability.
+<img width="1360" height="548" alt="image" src="https://github.com/user-attachments/assets/8fb89c30-3184-405a-9297-2123c881a773" />
+
+
+
+---
+
+#### 4.4 Model Registry and Versioning
+
+Both trained models are registered in the Hopsworks Model Registry for versioned storage and reproducibility:
+
+- **Classification Model**: `nyc_311_within48h_xgb`
+- **Regression Model**: `nyc_311_resolution_hours_xgb`
+
+Each model is stored with associated metadata, including training data version, feature schema, and model parameters, enabling traceability and future deployment.
+<img width="2352" height="286" alt="image" src="https://github.com/user-attachments/assets/a7d1074a-19e9-4e95-8910-d8c2ce8e27cd" />
+
+---
+
+## 5. Batch Inference Pipeline
+
+To demonstrate the end-to-end usability of the trained models, we implement a batch inference pipeline with a lightweight interactive user interface built using Streamlit.
+
+### 5.1 Input Data Selection
+
+The batch inference pipeline retrieves the most recent NYC 311 service requests from the feature store.  
+Users can specify the number of latest records to process (e.g., the most recent 100 requests), allowing flexible control over batch size.
+
+The pipeline automatically:
+- Reads the latest available 311 request features from Hopsworks
+- Applies the same feature schema used during model training
+- Ensures consistency between training and inference data
+
+---
+
+### 5.2 Batch Prediction
+
+For each selected batch, the pipeline performs inference using two registered XGBoost models:
+
+- **Classification Model** (`nyc_311_within48h_xgb`):  
+  Predicts the probability that a service request will be resolved within 48 hours.
+
+- **Regression Model** (`nyc_311_resolution_hours_xgb`):  
+  Predicts the expected resolution time (in hours).
+
+Both models are loaded from the Hopsworks Model Registry, ensuring versioned and reproducible inference.
+
+---
+
+### 5.3 Output and Visualization
+
+The inference results are presented through an interactive Streamlit interface, including:
+
+- **Summary statistics**, such as:
+  - Average probability of resolution within 48 hours
+  - Proportion of requests predicted to be resolved within 48 hours
+  - Average predicted resolution time
+
+- **Tabular predictions**, showing for each request:
+  - Key request attributes (e.g., agency, complaint type, borough)
+  - Predicted probability and binary outcome for the 48-hour resolution task
+  - Predicted resolution time in hours
+
+This interface allows users to easily explore and interpret batch prediction results.
+
+---
+
+### 5.4 Execution
+
+The batch inference application can be launched locally using:
+
+```bash
+streamlit run app.py
+
+
+<img width="3072" height="1582" alt="image" src="https://github.com/user-attachments/assets/d5d6bfe7-a3b5-4117-88d0-c310390ed8d3" />
 
 ---
 
