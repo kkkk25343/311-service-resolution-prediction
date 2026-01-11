@@ -60,7 +60,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
   - Retrieve hourly weather data separately for each borough using Open-Meteo API.
 
 - **Daily Aggregation**:
-  - Aggregate hourly data to daily level:
+  - Aggregate hourly data to daily level using mean:
     - `temperature_mean` (°C)
     - `precipitation_sum` (mm)
     - `wind_speed_mean` (m/s)
