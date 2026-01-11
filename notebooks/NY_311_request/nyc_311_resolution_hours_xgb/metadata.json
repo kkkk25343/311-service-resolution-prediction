@@ -1,0 +1,25 @@
+{
+  "task": "regression",
+  "target": "resolution_hours",
+  "categorical_features": [
+    "agency",
+    "agency_name",
+    "complaint_type",
+    "descriptor",
+    "location_type",
+    "borough"
+  ],
+  "numeric_features": [
+    "is_work_day",
+    "is_work_hours",
+    "created_hour",
+    "created_weekday",
+    "created_month",
+    "is_weekend",
+    "weather_temperature_mean",
+    "weather_precipitation_sum",
+    "weather_wind_speed_mean"
+  ],
+  "model_type": "XGBRegressor",
+  "description": "Predict resolution time (hours) for NYC 311 service requests"
+}
