@@ -26,7 +26,7 @@ NYC 311 Service Requests is a continuously updated, city-wide dataset provided v
   - Queens
   - Bronx
   - Staten Island
-- **Method**: One representative latitude/longitude point per borough is used to retrieve historical hourly weather data.
+- **Method**: One representative latitude/longitude point per borough is used to retrieve historical hourly weather data. For each of the five districts, we select one station from a weather website to represent the overall weather conditions of that district.
   
 ## 2. Feature Pipeline
 
