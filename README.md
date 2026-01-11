@@ -264,7 +264,7 @@ The batch inference application can be launched locally using:
 
 ```bash
 streamlit run app.py
-
+```
 
 <img width="3072" height="1582" alt="image" src="https://github.com/user-attachments/assets/d5d6bfe7-a3b5-4117-88d0-c310390ed8d3" />
 
