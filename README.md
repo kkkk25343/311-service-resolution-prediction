@@ -213,11 +213,11 @@ To demonstrate the end-to-end usability of the trained models, we implement a ba
 
 ### 4.1 Input Data Selection
 
-The batch inference pipeline retrieves the most recent NYC 311 service requests from the feature store.  
+The batch inference pipeline retrieves the most recent NYC 311 service requests.  
 Users can specify the number of latest records to process (e.g., the most recent 100 requests), allowing flexible control over batch size.
 
 The pipeline automatically:
-- Reads the latest available 311 request features from Hopsworks
+- Reads the latest available 311 requests from the website. 
 - Applies the same feature schema used during model training
 - Ensures consistency between training and inference data
 
