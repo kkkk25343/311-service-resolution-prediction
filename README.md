@@ -1,6 +1,10 @@
 # 311-service-resolution-prediction
 Project name: Dynamic Prediction of 311 Service Request Resolution Using Urban and Weather Data
 
+Our project focuses on predicting the resolution efficiency of NYC 311 service requests, which are non-emergency reports submitted by city residents. By combining urban service data with environmental factors to better understand what influences how quickly issues are addressed. Using the publicly available NYC 311 dataset from the city’s open data portal and historical weather data from the Open-Meteo API, we construct a rich feature set that incorporates temporal, categorical, and weather-related information.
+
+We frame resolution prediction as both a classification task (whether a request will be resolved within 48 hours) and a regression task (estimating the total time to resolution), training models such as XGBoost to produce actionable insights. By integrating multiple data sources and advanced feature engineering, our work aims to provide data-driven predictions that support operational planning and transparency for urban service delivery.
+
 ## 1. Datasets
 ### 1.1 NYC 311 Service Requests Data
 NYC 311 Service Requests is a continuously updated, city-wide dataset provided via the NYC Open Data Socrata API, containing detailed records of non-emergency service requests submitted by residents, including request type, location, timestamps, and resolution information.
