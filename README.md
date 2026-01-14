@@ -100,13 +100,6 @@ The notebook `2_311_services_data_updates.ipynb` is responsible for retrieving n
 ### STEP 1: Training Data Construction
   - Read the NYC 311 request features and weather features from two feature groups in Hopsworks.
   - Join the two feature groups using `(borough, date)` as the primary keys to construct the training dataset.
-  - Select the timezone interpretation (local time vs. UTC→NY conversion) that maximizes the feature matching rate.
-
-- Output dataset: `df_merged`, including:
-  - `weather_temperature_mean`
-  - `weather_precipitation_sum`
-  - `weather_wind_speed_mean`
-
 ---
 
 ### STEP 2: Label Generation (Pre-training)
